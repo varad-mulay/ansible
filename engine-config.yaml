@@ -1,5 +1,5 @@
 ---
-# cofigure kubernetes nodes with users and access
+# configure kubernetes nodes with users and access
 
 - name: Post-provisioning configurations
   hosts: all
