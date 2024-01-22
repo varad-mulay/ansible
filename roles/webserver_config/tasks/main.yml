@@ -14,7 +14,7 @@
   ignore_errors: true
 
 - name: Install Nginx if not installed
-  apt:
+  dnf:
     name: nginx
     state: present
   when: nginx_installed.rc != 0
