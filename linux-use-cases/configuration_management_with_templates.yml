@@ -1,1 +1,12 @@
 ---
+# playbook.yml
+
+- name: Configure Web Server
+  hosts: nodes
+  become: true
+  vars:
+    server_name: example.com
+    web_root: /var/www/html
+
+  roles:
+    - webserver_config

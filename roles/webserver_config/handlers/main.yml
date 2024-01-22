@@ -1,2 +1,9 @@
 ---
 # handlers file for webserver_config
+# roles/webserver/handlers/main.yml
+# This handler reloads Nginx when notified.
+
+- name: Reload Nginx
+  systemd:
+    name: nginx
+    state: reloaded

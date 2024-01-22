@@ -1,2 +1,27 @@
 ---
 # tasks file for webserver_config
+# roles/webserver/tasks/main.yml
+
+# The first task checks whether Nginx is already installed using the which command. It registers the result in the nginx_installed variable.
+
+# The second task installs Nginx using the apt module only if Nginx is not installed (determined by the when: nginx_installed.rc != 0 condition).
+
+# Third task copies the templated Nginx configuration file to the appropriate location.
+
+- name: Check if Nginx is installed
+  command: "which nginx"
+  register: nginx_installed
+  ignore_errors: true
+
+- name: Install Nginx if not installed
+  apt:
+    name: nginx
+    state: present
+  when: nginx_installed.rc != 0
+
+- name: Copy Nginx configuration file
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify:
+    - Reload Nginx
