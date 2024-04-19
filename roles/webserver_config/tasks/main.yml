@@ -15,9 +15,9 @@
 
 - name: Install Nginx if not installed
   dnf:
-    name: nginx
+    name: python
     state: present
-  when: nginx_installed.rc != 0
+ # when: nginx_installed.rc != 0
 
 # The file module is used to ensure that the /etc/nginx/sites-available directory exists. If it doesn't exist, it will be created.
 
