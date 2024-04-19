@@ -9,52 +9,54 @@
   
   tasks:
     - name: Install dependencies
-      dnf: name={{ item }} state=present
-      with_items:
-        #       - python
-       - python-setuptools
-       - python-dev
-       - build-essential
-       - python-pip
-       - python-mysqldb
-
-    - name: Install MySQL database
-      dnf:
-        name: "{{ item }}"
-        state:  present
-      with_items:
-       - mysql-server
-       - mysql-client
-
-    - name: Start Mysql Service
-      service:
-        name: mysql
-        state: started
-        enabled: yes
-
-    - name: Create Application Database
-      mysql_db: name={{ db_name }} state=present
-
-    - name: Create Application DB User
-      mysql_user: 
-        name={{ db_user }} 
-        password={{ db_password }} 
-        priv='*.*:ALL' 
-        host='%' 
-        state='present'
-
-    - name: Install Python Flask dependencies
-      pip:
-        name: '{{ item }}'
+      dnf: 
+        name: python
         state: present
-      with_items:
-       - flask
-       - flask-mysql
+    #   with_items:
+    #    - python
+    #    - python-setuptools
+    #    - python-dev
+    #    - build-essential
+    #    - python-pip
+    #    - python-mysqldb
 
-    - name: Copy web-server code
-      copy: 
-        src=app.py 
-        dest=/opt/app.py
+    # - name: Install MySQL database
+    #   dnf:
+    #     name: "{{ item }}"
+    #     state:  present
+    #   with_items:
+    #    - mysql-server
+    #    - mysql-client
 
-    - name: Start web-application
-      shell: FLASK_APP=/opt/app.py nohup flask run --host=0.0.0.0 &
+    # - name: Start Mysql Service
+    #   service:
+    #     name: mysql
+    #     state: started
+    #     enabled: yes
+
+    # - name: Create Application Database
+    #   mysql_db: name={{ db_name }} state=present
+
+    # - name: Create Application DB User
+    #   mysql_user: 
+    #     name={{ db_user }} 
+    #     password={{ db_password }} 
+    #     priv='*.*:ALL' 
+    #     host='%' 
+    #     state='present'
+
+    # - name: Install Python Flask dependencies
+    #   pip:
+    #     name: '{{ item }}'
+    #     state: present
+    #   with_items:
+    #    - flask
+    #    - flask-mysql
+
+    # - name: Copy web-server code
+    #   copy: 
+    #     src=app.py 
+    #     dest=/opt/app.py
+
+    # - name: Start web-application
+    #   shell: FLASK_APP=/opt/app.py nohup flask run --host=0.0.0.0 &
