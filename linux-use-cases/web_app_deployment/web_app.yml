@@ -8,7 +8,7 @@
   
   tasks:
     - name: Install dependencies
-      apt: name={{ item }} state=present
+      yum: name={{ item }} state=present
       with_items:
        - python
        - python-setuptools
@@ -18,7 +18,7 @@
        - python-mysqldb
 
     - name: Install MySQL database
-      apt:
+      yum:
         name: "{{ item }}"
         state:  present
       with_items:
