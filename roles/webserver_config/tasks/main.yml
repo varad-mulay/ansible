@@ -33,9 +33,3 @@
   notify:
     - Reload Nginx
 
-- name: Copy Nginx configuration file
-  template:
-    src: nginx.conf.j2
-    dest: /etc/nginx/sites-available/default
-  notify:
-    - Reload Nginx
