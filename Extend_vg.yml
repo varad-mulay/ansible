@@ -1,0 +1,66 @@
+---
+- name: Manage LVM and extend VG if needed
+  hosts: localhost  # Change to your actual target hosts
+  gather_facts: yes
+
+  vars:
+    # Input mount points and their required sizes (in GB)
+    mount_points:
+      - { name: "/mnt/point1", vg: "VG1", req_size: 9 }
+      - { name: "/mnt/point2", vg: "VG1", req_size: 9 }
+      - { name: "/mnt/point3", vg: "VG2", req_size: 8 }
+
+  tasks:
+    - name: Get facts about the disks and volumes
+      command: vgdisplay -C --units G --noheadings --separator ","
+      register: vg_details
+      changed_when: false
+
+    - name: Parse VG details into a dictionary
+      set_fact:
+        vg_info: "{{ vg_details.stdout_lines | map('split', ',') | map('map', 'trim') | list | items2dict(key_name=0, value_name=5) }}"
+
+    - name: Remove 'G' from the available space and convert to float
+      set_fact:
+        vg_info: "{{ vg_info | dict2items | map('combine', {'value': value | regex_replace('G', '') | float}) | items2dict }}"
+
+    - name: Calculate total required space for each VG
+      set_fact:
+        vg_requirements: {}
+      loop: "{{ mount_points }}"
+      loop_control:
+        label: "{{ item.vg }}"
+      vars:
+        current_size: "{{ vg_requirements[item.vg] | default(0) }}"
+        
+      set_fact:
+        vg_requirements: "{{ vg_requirements | combine({ item.vg: current_size + item.req_size }) }}"
+
+    - name: Check which VGs need to be expanded
+      set_fact:
+        expand_vgs: []
+      loop: "{{ vg_requirements.keys() | list }}"
+      vars:
+        required_size: "{{ vg_requirements[item] | default(0) }}"
+        available_size: "{{ vg_info[item] | default(0) }}"
+      when: required_size > available_size
+      set_fact:
+        expand_vgs: "{{ expand_vgs + [item] }}"
+
+    - name: Display VGs that need extension
+      debug:
+        msg: "The following VGs need to be expanded: {{ expand_vgs }}"
+
+    - name: Extend VG if necessary
+      lvg:
+        vg: "{{ item }}"
+        pvs: "/dev/sdb"  # Adjust based on your system setup
+      loop: "{{ expand_vgs }}"
+      when: expand_vgs | length > 0
+
+    - name: Expand Logical Volume or Mount Point (example)
+      lvol:
+        vg: "{{ item.vg }}"
+        lv: "{{ item.name }}"
+        size: "{{ item.req_size }}G"
+      loop: "{{ mount_points }}"
